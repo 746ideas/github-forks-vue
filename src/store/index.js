@@ -19,6 +19,9 @@ export default new Vuex.Store({
     },
     [getters.IS_NOT_LOADED](state){
       return state.status === constants.NOT_LOADED
+    },
+    [getters.IS_NOT_FOUND](state){
+      return state.status === constants.NOT_FOUND
     }
   },
   mutations: {
@@ -30,11 +33,18 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    [actions.FETCH_FORK_LIST]({commit}, name){
+    [actions.FETCH_FORK_LIST]({commit}, {name, page}){
       commit(mutations.SET_LOADING_STATUS, constants.LOADING)
-      forkService.getRepoForks(name).then(data => {
+      return forkService.getRepoForks(name, page).then(({data, lastPage}) => {
         commit(mutations.SET_LOADING_STATUS, constants.LOADED)
         commit(mutations.SET_FORKS, data)
+        return lastPage
+      }).catch(error => {
+        if(error.response && error.response.status === 404){
+          commit(mutations.SET_LOADING_STATUS, constants.NOT_FOUND)
+          return 0
+        }
+        return Promise.reject(error)
       })
     }
   }

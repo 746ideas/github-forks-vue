@@ -1,97 +1,58 @@
 <template>
-  <v-row>
-    <v-col
-      cols="12"
-      sm="12"
-    >
+  <div class="d-flex flex-column align-center justify-center" style="height: 100%">
+    <div>
+      <v-row class="justify-center align-center mb-4">
+        <img :src="`${publicPath}vue.svg`" alt="vue"/>
+        <img :src="`${publicPath}add.svg`" alt="add"/>
+        <img :src="`${publicPath}github.svg`" alt="github"/>
+        <img :src="`${publicPath}fork.png`" alt="fork"/>
+      </v-row>
+      <h1 class="text-h5 mb-8">Введите название репозитория для поиска форков</h1>
       <SearchInput
         v-model="searchInput"
-        @search="handleSearch"
+        @search="goToSearch"
       />
-      <v-sheet v-if="isLoading">
-        <v-progress-linear
-          indeterminate
-        >
-        </v-progress-linear>
-        <v-subheader class="justify-center">
-          Загружаем...
-        </v-subheader>
-      </v-sheet>
-      <v-simple-table dense v-if="isLoaded">
-        <thead>
-        <tr>
-          <th>
-            Полное название репозитория
-          </th>
-          <th>
-            Владелец
-          </th>
-          <th class="text-center">
-            Количестов звезд
-          </th>
-          <th>
-            Ссылка на репозиторий форка
-          </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr
-          v-for="fork in forks"
-          :key="fork.id"
-        >
-          <td>
-            {{ fork.full_name }}
-          </td>
-          <td>
-            {{ fork.owner.login }}
-          </td>
-          <td class="text-center">
-            <v-icon class="mr-1">
-              mdi-star
-            </v-icon>
-            {{ fork.stargazers_count }}
-          </td>
-          <td>
-            <a :href="fork.html_url">
-              {{fork.html_url}}
-            </a>
-          </td>
-        </tr>
-        </tbody>
-      </v-simple-table>
-    </v-col>
-  </v-row>
+    </div>
+  </div>
 </template>
 
 <script>
-
-import {mapActions, mapGetters, mapState} from "vuex";
-import {getters, actions} from "@/store/types";
-import SearchInput from "@/components/SearchInput";
-
+import SearchInput from "../components/SearchInput";
 export default {
-  name: 'Home',
-  components: {SearchInput},
+  name: "Home",
+  components: {
+    SearchInput,
+  },
   data(){
-    return{
-      searchInput: ''
+    return {
+      searchInput: '',
+      publicPath: process.env.BASE_URL
     }
   },
-  computed: {
-    ...mapState(['forks']),
-    ...mapGetters({
-      isNotLoaded: getters.IS_NOT_LOADED,
-      isLoading: getters.IS_LOADING,
-      isLoaded: getters.IS_LOADED
-    })
-  },
   methods:{
-    ...mapActions({
-      getForks: actions.FETCH_FORK_LIST
-    }),
-    handleSearch() {
-      this.getForks(this.searchInput)
+    goToSearch(){
+      this.$router.push({path: '/search', query: {page: '1', repositoryName: this.searchInput}})
     }
   }
 }
 </script>
+
+<style scoped>
+img{
+  margin-right: 16px;
+}
+img:first-of-type{
+  width: 100px;
+  height: 100px;
+}
+img:nth-of-type(2){
+  width: 50px;
+  height: 50px;
+}
+img:nth-of-type(3){
+  height: 100px;
+}
+img:nth-of-type(4){
+  height: 100px;
+}
+</style>
